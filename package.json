@@ -1,0 +1,26 @@
+{
+  "name": "openshift-blog-post",
+  "version": "1.0.0",
+  "description": "code to go along with an openshift blog post",
+  "main": "index.js",
+  "scripts": {
+    "build": "babel src/*.js -d dist/ --presets @babel/preset-env && cp -R src/client dist",
+    "dev": "npx babel-node --presets @babel/preset-env src/Server.js",
+    "start": "node Server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "core-js": "^3.1.4",
+    "express": "^4.17.1",
+    "regenerator-runtime": "^0.13.2",
+    "solclientjs": "^10.3.1"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.5.5",
+    "@babel/core": "^7.6.2",
+    "@babel/node": "^7.5.0",
+    "@babel/preset-env": "^7.6.2",
+    "cssnano": "^4.1.10"
+  }
+}

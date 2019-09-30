@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: Template
+metadata:
+  annotations:
+    description: Creates a simple application Pod that connects to the Solace PS+ Standard Edition Pod
+    iconClass: icon-openshift
+    tags: messaging
+  creationTimestamp: null
+  name: solace-simple-application
+
+objects:
+  - apiVersion: v1
+    kind: Pod
+    metadata:
+      name: ${POD_NAME}
+      labels:
+        pod: ${POD_NAME}
+    spec:
+      containers:
+        - env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.namespace
+            - name: "SOLACE_CLUSTERIP_SVC_HOSTNAME"
+              value: ${SOLACE_VMR_POD_NAME}-ci-svc.$(POD_NAMESPACE).svc
+            - name: "SOLACE_SMFWEB_PORT"
+              value: ${SOLACE_SMFWEB_PORT}
+            - name: "SOLACE_VPN"
+              value: ${SOLACE_VPN}
+            - name: "SOLACE_USERNAME"
+              value: ${SOLACE_USERNAME}
+            - name: "SOLACE_PASSWORD"
+              value: ${SOLACE_PASSWORD}
+          name: ${POD_NAME}
+          image: "ajrsolace/simple-solace-app:latest"
+          ports:
+            - containerPort: 3001
+              protocol: TCP
+          securityContext:
+            privileged: false
+          resources:
+            requests:
+              memory: "1026Mi"
+              cpu: "2"
+            limits:
+              memory: "1026Mi"
+              cpu: "2"
+      securityContext:
+        privileged: false
+
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: ${POD_NAME}-np-svc
+      annotations:
+        description: "Exposes PS+ NodePort services"
+    spec:
+      type: NodePort
+      selector:
+        pod: ${POD_NAME}
+      portalIP:
+      ports:
+        - name: "web-gui"
+          nodePort:
+          port: 3001
+          protocol: TCP
+          targetPort: 3001
+
+parameters:
+  - description: The name of the application Pod
+    from: "[a-z0-9]{40}"
+    generate: expression
+    name: POD_NAME
+    value: solace-simple-app
+  - description: The name of the Solace Messaging service to connect to
+    from: "[a-z0-9]{40}"
+    generate: expression
+    name: SOLACE_VMR_POD_NAME
+    value: vmr
+  - description: VPN for the VMR
+    from: "[a-z0-9]{40}"
+    generate: expression
+    name: SOLACE_VPN
+    value: default
+  - description: Username for the VMR
+    from: "[a-z0-9]{40}"
+    generate: expression
+    name: SOLACE_USERNAME
+    value: default
+  - description: Password for the VMR
+    name: SOLACE_PASSWORD
+    value: ""
+  - description: The smf-web port
+    from: "[a-z0-9]{40}"
+    generate: expression
+    name: SOLACE_SMFWEB_PORT
+    value: "60080"

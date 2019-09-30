@@ -1,0 +1,176 @@
+apiVersion: v1
+kind: Template
+metadata:
+  annotations:
+    description: Creates a simple Solace PS+ Pod with persistent storage using latest public Solace PS+ Standard Edition broker
+    iconClass: icon-openshift
+    tags: messaging
+  creationTimestamp: null
+  name: solace-simple-persistent-pod-template
+
+objects:
+  - kind: Pod
+    apiVersion: v1
+    metadata:
+      name: ${POD_NAME}
+      labels:
+        pod: ${POD_NAME}
+    spec:
+      containers:
+        - env:
+            - name: username_${ADMIN_USER}_password
+              value: ${ADMIN_PASSWORD}
+            - name: username_${ADMIN_USER}_globalaccesslevel
+              value: admin
+            - name: service_ssh_port
+              value: "2222"
+            - name: service_webtransport_port
+              value: "60080"
+            - name: service_webtransport_tlsport
+              value: "60443"
+            - name: service_semp_tlsport
+              value: "60943"
+            - name: logging_debug_output
+              value: stdout
+            - name: logging_kernel_output
+              value: stdout
+          name: ${POD_NAME}
+          image: "solace/solace-pubsub-standard"
+          ports:
+            - containerPort: 60080
+              protocol: TCP
+            - containerPort: 60443
+              protocol: TCP
+            - containerPort: 8080
+              protocol: TCP
+            - containerPort: 55555
+              protocol: TCP
+            - containerPort: 2222
+              protocol: TCP
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - mountPath: /dev/shm
+              name: dshm
+            - mountPath: /usr/sw/internalSpool/softAdb
+              subPath: softAdb
+              name: poddata-${POD_NAME}
+            - mountPath: /usr/sw/adb
+              subPath: adb
+              name: poddata-${POD_NAME}
+            - mountPath: /usr/sw/var
+              subPath: var
+              name: poddata-${POD_NAME}
+            - mountPath: /usr/sw/internalSpool
+              subPath: internalSpool
+              name: poddata-${POD_NAME}
+            - mountPath: /var/lib/solace/diags
+              subPath: diags
+              name: poddata-${POD_NAME}
+            - mountPath: /usr/sw/jail
+              subPath: jail
+              name: poddata-${POD_NAME}
+          resources:
+            requests:
+              memory: "4096Mi"
+              cpu: "2"
+            limits:
+              memory: "8192Mi"
+              cpu: "4"
+
+      securityContext:
+        privileged: false
+
+      volumes:
+        - emptyDir:
+            medium: Memory
+          name: dshm
+        - name: poddata-${POD_NAME}
+          persistentVolumeClaim:
+            claimName: poddata-${POD_NAME}
+
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: ${POD_NAME}-ci-svc
+      annotations:
+        description: "Exposes PS+ ClusterIP services"
+    spec:
+      type: ClusterIP
+      clusterIP: None
+      selector:
+        pod: ${POD_NAME}
+      ports:
+        - name: "smf"
+          port: 55555
+          targetPort: 55555
+        - name: "smf-web"
+          port: 60080
+          targetPort: 60080
+        - name: "semp"
+          port: 8080
+          targetPort: 8080
+        - name: "ssh"
+          port: 2222
+          targetPort: 2222
+
+  - kind: Service
+    apiVersion: v1
+    metadata:
+      name: ${POD_NAME}-np-svc
+      annotations:
+        description: "Exposes PS+ NodePort services"
+    spec:
+      type: NodePort
+      selector:
+        pod: ${POD_NAME}
+      portalIP:
+      ports:
+        - name: "smf-web"
+          nodePort: 60080
+          port: 60080
+          protocol: TCP
+          targetPort: 60080
+        - name: "semp"
+          nodePort:
+          port: 8080
+          protocol: TCP
+          targetPort: 8080
+        - name: "smf"
+          nodePort:
+          port: 55555
+          protocol: TCP
+          targetPort: 55555
+        - name: "ssh-alternate"
+          nodePort:
+          port: 2222
+          protocol: TCP
+          targetPort: 2222
+
+  - kind: PersistentVolumeClaim
+    apiVersion: v1
+    metadata:
+      name: poddata-${POD_NAME}
+    spec:
+      accessModes:
+        - ReadWriteOnce
+      resources:
+        requests:
+          storage: 64Gi
+
+parameters:
+  - description: The name of the Solace Messaging service to create
+    from: "[a-z0-9]{40}"
+    generate: expression
+    name: POD_NAME
+    value: vmr
+  - description: Username of the admin user
+    from: "[a-zA-Z0-9]{16}"
+    generate: expression
+    name: ADMIN_USER
+    value: admin
+  - description: Password of the admin user
+    from: "[a-zA-Z0-9]{16}"
+    generate: expression
+    name: ADMIN_PASSWORD
+    value: admin

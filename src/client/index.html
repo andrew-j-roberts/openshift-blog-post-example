@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+    
+    http://www.apache.org/licenses/LICENSE-2.0
+    
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+  -->
+
+<html lang="en">
+  
+  <head>
+    <title>Hello from OpenShift!</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge;" />
+    <meta charset="utf-8"/>
+
+    <link type="text/css" href="/public/css/pure.css" rel="stylesheet"></link>
+    <link type="text/css" href="/public/css/samples.css" rel="stylesheet"></link>
+
+    <!-- Load Solace Web Messaging API for JavaScript -->
+    <script src="/solclient-debug.js"></script>
+
+    <!-- Load the RequestReply Basic Requestor tutorial -->
+    <script src="/SolaceClient.js"></script>
+
+    <!-- Execute the RequestReply Basic Replier tutorial -->
+    <script>
+      var client = null;
+      window.onload = function () {
+        client = SolaceClient();
+        document.getElementById("connect").addEventListener("click", client.connect);
+        document.getElementById("disconnect").addEventListener("click", client.disconnect);
+        document.getElementById("request").addEventListener("click", client.request);
+        document.getElementById("subscribe").addEventListener("click", client.subscribe);
+        document.getElementById("unsubscribe").addEventListener("click", client.unsubscribe);
+      };
+      function iframeloaded(){
+        if (client) {
+          client.connectToSolace();
+        }
+      };
+    </script>
+    <style>
+        .warning {
+            padding: 5px; 
+            border: 1px solid black; 
+            background-color: #ff8;
+        }
+        .ie11 {
+            /* Hide instructions that only apply to IE11/Edge */
+            display: none; 
+        }
+        @media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+            .ie11 {
+                /* Show instructions in IE11. If you're trying this sample from the local filesystem,
+                   it's easy to miss the prompt at the bottom of the window. */
+                display: block !important;
+            }
+        }
+	</style>
+  </head>
+
+  <body>
+    <!-- used to prompt selection of client certificate -->
+    <iframe id="iframe" src="" onload="iframeloaded()" hidden></iframe>
+
+    <div class="banner">
+      <div class="banner-interior">
+        <span class="logo">
+          <a href="http://dev.solace.com/">
+            <img src="/public/images/solace-logo-white.png"/>
+          </a>
+        </span>
+        <div class="banner-heading">
+          Hello from OpenShift!
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-body">
+
+      <form class="pure-form pure-form-aligned">
+        <fieldset>
+
+          <div class="pure-control-group">
+            <label for="hosturl">Solace router host url</label>
+            <input id="hosturl" type="text" placeholder="<protocol://host[:port]>">
+          </div>
+
+          <div class="pure-control-group">
+            <label for="message-vpn">Message-vpn</label>
+            <input id="message-vpn" type="text" placeholder="Message VPN" value="default">
+          </div>
+
+          <div class="pure-control-group">
+            <label for="username">Username</label>
+            <input id="username" type="text" placeholder="Username" value="default">
+          </div>
+
+          <div class="pure-control-group">
+            <label for="password">Password</label>
+            <input id="password" type="password" placeholder="Password">
+          </div>
+
+        </fieldset>
+        <p>
+          <button type="button" class="pure-button pure-button-primary" id="connect">Connect</button>
+          <button type="button" class="pure-button button-error" id="disconnect">Disconnect</button>
+        </p>
+        <textarea id="log" rows="10" cols="70" autofocus></textarea>
+
+        <div style="display: flex;margin-top: 30px;">
+          <div style="display:flex; flex-direction: column;">
+            <div style="display:flex;">
+              <button type="button" class="pure-button pure-button-primary" id="request">Send Request</button>
+            </div>
+            <textarea id="log-requestor" rows="15" cols="70" autofocus></textarea>
+          </div>
+          <div style="display:flex; flex-direction: column; margin-left: 25px;">
+            <div style="display:flex;">
+              <button type="button" class="pure-button pure-button-primary" id="subscribe">Subscribe</button>
+              <button style="margin-left:15px;" type="button" class="pure-button pure-button-primary" id="unsubscribe">Unsubscribe</button>
+            </div>
+            <textarea id="log-replier" rows="15" cols="70" autofocus></textarea>
+          </div>
+        </div>        
+      </form>
+      
+    </div>
+    
+  </body>
+  
+</html>
