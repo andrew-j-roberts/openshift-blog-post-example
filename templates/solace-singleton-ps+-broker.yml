@@ -127,7 +127,7 @@ objects:
       portalIP:
       ports:
         - name: "smf-web"
-          nodePort: 60080
+          nodePort: 30200
           port: 60080
           protocol: TCP
           targetPort: 60080

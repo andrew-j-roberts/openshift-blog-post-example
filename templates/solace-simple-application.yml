@@ -63,7 +63,7 @@ objects:
       portalIP:
       ports:
         - name: "web-gui"
-          nodePort:
+          nodePort: 30100
           port: 3001
           protocol: TCP
           targetPort: 3001
