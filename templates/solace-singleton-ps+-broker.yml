@@ -35,7 +35,7 @@ objects:
             - name: logging_kernel_output
               value: stdout
           name: ${POD_NAME}
-          image: "solace/solace-pubsub-standard"
+          image: "solace/solace-pubsub-standard:9.4.0EA"
           ports:
             - containerPort: 60080
               protocol: TCP
@@ -48,7 +48,7 @@ objects:
             - containerPort: 2222
               protocol: TCP
           securityContext:
-            privileged: true
+            privileged: false
           volumeMounts:
             - mountPath: /dev/shm
               name: dshm
