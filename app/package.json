@@ -12,7 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "core-js": "^3.1.4",
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "regenerator-runtime": "^0.13.2",
     "solclientjs": "^10.3.1"
   },
